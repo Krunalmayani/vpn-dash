@@ -1,15 +1,35 @@
-import React from 'react';
+// scroll bar
+// import 'simplebar/src/simplebar.css';
+
 import ReactDOM from 'react-dom/client';
-import './index.css';
+import { BrowserRouter } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
+import { Provider } from 'react-redux';
+import "react-toastify/dist/ReactToastify.css";
+
+//
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 import App from './App';
+import * as serviceWorker from './serviceWorker';
 import reportWebVitals from './reportWebVitals';
+import store from "./redux/store";
+// ----------------------------------------------------------------------
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  <Provider store={store}>
+    <HelmetProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </HelmetProvider>
+  </Provider>
 );
+
+// If you want to enable client cache, register instead.
+serviceWorker.unregister();
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
