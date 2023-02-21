@@ -14,6 +14,7 @@ import AddNewServer from './pages/AddNewServer';
 import AddNewApp from './pages/AddNewApp';
 import EditAppInfo from './pages/EditApp';
 import EditServerInfo from './pages/EditServer';
+import ManageAppServer from './pages/ManageAppServer';
 
 // ----------------------------------------------------------------------
 
@@ -28,6 +29,7 @@ export default function Router() {
         { path: 'server', element: <ServerList /> },
         { path: 'allApp', element: <AllApps /> },
         { path: 'allApp/editApp', element: <EditAppInfo /> },
+        { path: 'allApp/manageServer', element: <ManageAppServer /> },
         { path: 'server/newServer', element: <AddNewServer /> },
         {
           path: 'server/editServer',

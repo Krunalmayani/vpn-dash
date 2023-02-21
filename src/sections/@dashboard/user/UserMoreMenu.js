@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 // material
 import { Menu, MenuItem, IconButton, ListItemIcon, ListItemText } from '@mui/material';
@@ -8,7 +7,7 @@ import Iconify from '../../../components/Iconify';
 
 // ----------------------------------------------------------------------
 
-export default function UserMoreMenu({ onPressEditRow }) {
+export default function UserMoreMenu({ onPressEditRow, onPressManageServer, isManage = false }) {
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -35,6 +34,12 @@ export default function UserMoreMenu({ onPressEditRow }) {
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
+        {isManage && <MenuItem to="#" sx={{ color: 'text.secondary' }} onClick={onPressManageServer}>
+          <ListItemIcon>
+            <Iconify icon="mdi:server" width={24} height={24} />
+          </ListItemIcon>
+          <ListItemText primary="Manage Server" primaryTypographyProps={{ variant: 'body2' }} />
+        </MenuItem>}
         <MenuItem to="#" sx={{ color: 'text.secondary' }} onClick={onPressUserRow}>
           <ListItemIcon>
             <Iconify icon="eva:edit-fill" width={24} height={24} />

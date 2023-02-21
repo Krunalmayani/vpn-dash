@@ -9,7 +9,7 @@ const INITIAL_STATE = {
     allServer: []
 };
 
-export default (state = INITIAL_STATE, action = {}) => {
+const AuthReduce = (state = INITIAL_STATE, action = {}) => {
 
     switch (action.type) {
         case USER_DATA:
@@ -37,3 +37,5 @@ export default (state = INITIAL_STATE, action = {}) => {
             return state;
     }
 };
+
+export default AuthReduce;

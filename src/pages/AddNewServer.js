@@ -1,44 +1,49 @@
-import { useNavigate } from 'react-router-dom';
-// @mui
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
-import { styled } from '@mui/material/styles';
-import { Container, Typography, Stack, InputAdornment, IconButton } from '@mui/material';
-// hooks
-import useResponsive from '../hooks/useResponsive';
+import { Container, Typography, Stack, InputAdornment, IconButton, } from '@mui/material';
 
-import { FormProvider, RHFTextField } from '../components/hook-form';
+import { CountryPicker, FormProvider, RHFTextField } from '../components/hook-form';
 import { LoadingButton } from '@mui/lab';
 import { useState } from 'react';
 import Iconify from '../components/Iconify';
 
+
 // ----------------------------------------------------------------------
 
 const AddNewServer = () => {
+
     const [showPassword, setShowPassword] = useState(false);
     const [showCPassword, setShowCPassword] = useState(false);
+    const [isError, setIsError] = useState(false);
 
     const NewServerSchema = Yup.object().shape({
-        username: Yup.string().required('No Name provided.'),
+        name: Yup.string().required('No Name provided.'),
+        username: Yup.string().required('No User Name provided.'),
         password: Yup.string().required('Password is required'),
         country: Yup.string().required('Country is required'),
-        cPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match').required('No Name provided.')
+        city: Yup.string().required('City is required'),
+        IPAddress: Yup.string().required('IP Address is required'),
+        cPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match').required('Confirm Password is required')
     });
 
     const defaultValues = {
+        name: '',
         username: '',
         password: '',
         cPassword: '',
-        country: '',
         config_udp: '',
-        config_tcp: ''
+        config_tcp: '',
+        country: '',
+        city: '',
+        IPAddress: ''
     };
 
     const methods = useForm({
+        mode: "onChange",
         resolver: yupResolver(NewServerSchema),
-        defaultValues,
+        defaultValues
     });
 
     const {
@@ -48,6 +53,13 @@ const AddNewServer = () => {
 
     const onSubmit = async (values) => {
         console.log('value::', values);
+        if (values.config_tcp !== '' || values.config_udp !== '') {
+            setIsError(false)
+            console.log('dewfjgofdgeofhgwe', typeof values.config_tcp);
+        }
+        else {
+            setIsError(true)
+        }
 
     };
 
@@ -63,6 +75,8 @@ const AddNewServer = () => {
 
             <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
                 <Stack spacing={3} sx={{ my: 2 }}>
+                    <RHFTextField name="name" label="Name" />
+                    <RHFTextField name="IPAddress" label="IP Address" />
                     <RHFTextField name="username" label="User Name" />
                     <RHFTextField
                         name="password"
@@ -92,9 +106,11 @@ const AddNewServer = () => {
                             ),
                         }}
                     />
-                    <RHFTextField name="country" label="Country" />
+                    <CountryPicker name="country" label="Country" />
+                    <RHFTextField name="city" label="City" />
                     <RHFTextField name="config_udp" label="Config UDP" multiline rows={3} />
                     <RHFTextField name="config_tcp" label="Config TCP" multiline rows={3} />
+                    {isError && <p class="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-16d5wub-MuiFormHelperText-root" id=":r6:-helper-text"> Required UPD or TCP</p>}
                 </Stack>
 
                 <LoadingButton size="large" type="submit" variant="contained" loading={isSubmitting}>
@@ -104,7 +120,7 @@ const AddNewServer = () => {
 
         </Container>
     );
-};
+}
 
 
 

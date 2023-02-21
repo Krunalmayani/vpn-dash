@@ -1,24 +1,8 @@
-import { useEffect } from 'react';
-import { faker } from '@faker-js/faker';
-// @mui
-import { useTheme } from '@mui/material/styles';
 import { Grid, Container, Typography } from '@mui/material';
-
-// components
 import Page from '../components/Page';
-import Iconify from '../components/Iconify';
-// sections
-import {
-  AppWidgetSummary,
-} from '../sections/@dashboard/app';
-import { useDispatch } from 'react-redux';
-
-// ----------------------------------------------------------------------
+import AppWidgetSummary from '../sections/@dashboard/app/AppWidgetSummary';
 
 export default function DashboardApp() {
-  const theme = useTheme();
-
-
   return (
     <Page title="Dashboard">
       <Container maxWidth="xl">

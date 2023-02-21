@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 // @mui
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
@@ -15,6 +15,8 @@ import { LoadingButton } from '@mui/lab';
 // ----------------------------------------------------------------------
 
 const EditAppInfo = () => {
+
+    const { state } = useLocation()
     const smUp = useResponsive('up', 'sm');
 
     const mdUp = useResponsive('up', 'md');
@@ -28,12 +30,12 @@ const EditAppInfo = () => {
     });
 
     const defaultValues = {
-        email: 'data.email',
-        yourname: 'data.yourname',
-        walletAddress: 'data.walletaddress',
-        coin: 'data.coin',
-        life: 'data.creditlife'
+        name: state.name,
+        packageId: state.packageId,
+        account: state.account,
+        status: state.status
     };
+
 
     const methods = useForm({
         resolver: yupResolver(LoginSchema),

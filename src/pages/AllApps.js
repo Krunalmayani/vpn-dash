@@ -1,7 +1,6 @@
 import { filter } from 'lodash';
 import { useEffect, useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
 
 // material
 import {
@@ -24,7 +23,9 @@ import Scrollbar from '../components/Scrollbar';
 import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
-import { list } from '../Constants/applist';
+// import { list } from '../Constants/applist';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllAppList, getAppAllServer } from '../redux/action/appAction';
 
 
 // ----------------------------------------------------------------------
@@ -83,8 +84,17 @@ const AllApps = () => {
 
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const navigate = useNavigate();
+    const dispatch = useDispatch()
 
+    const { allAPP } = useSelector((state) => state.application);
 
+    useEffect(() => {
+        callAPI();
+    }, [])
+
+    const callAPI = () => {
+        dispatch(getAllAppList());
+    }
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -94,7 +104,7 @@ const AllApps = () => {
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
-            const newSelecteds = list.map((n) => n.id);
+            const newSelecteds = allAPP.map((n) => n.id);
             setSelected(newSelecteds);
             return;
         }
@@ -127,11 +137,22 @@ const AllApps = () => {
 
     const handleFilterByName = (event) => setFilterName(event.target.value);
 
-    const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - list.length) : 0;
+    const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - allAPP.length) : 0;
 
-    const filteredUsers = applySortFilter(list, getComparator(order, orderBy), filterName);
+    const filteredUsers = applySortFilter(allAPP, getComparator(order, orderBy), filterName);
 
     const isUserNotFound = filteredUsers.length === 0;
+
+
+    const handleNavigation = (row) => {
+
+        dispatch(getAppAllServer({ id: row.id }))
+
+        navigate('/dashboard/allApp/manageServer', {
+            replace: true, state: row
+        })
+
+    }
 
     return (
         <Page title="Apps">
@@ -140,9 +161,6 @@ const AllApps = () => {
                     <Typography variant="h4" gutterBottom>
                         Application
                     </Typography>
-                    {/* <Button variant="contained" component={RouterLink} to="#" onClick={() => navigate('/dashboard/allApp/newApp')} startIcon={<Iconify icon="eva:plus-fill" />}>
-                        New APP
-                    </Button> */}
 
                     <Button variant="contained" onClick={() => navigate('/dashboard/allApp/newApp')} to="#" startIcon={<Iconify icon="eva:plus-fill" />}  >
                         New APP
@@ -159,7 +177,7 @@ const AllApps = () => {
                                     order={order}
                                     orderBy={orderBy}
                                     headLabel={TABLE_HEAD}
-                                    rowCount={list.length}
+                                    rowCount={allAPP.length}
                                     numSelected={selected.length}
                                     onRequestSort={handleRequestSort}
                                     onSelectAllClick={handleSelectAllClick}
@@ -167,7 +185,7 @@ const AllApps = () => {
                                 <TableBody>
                                     {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
 
-                                        const { id, name, packageId, account, status, config_tcp, updated_date, avatarUrl, created_date } = row;
+                                        const { id, name, packageId, account, status, } = row;
                                         const isItemSelected = selected.indexOf(id) !== -1;
 
                                         return (
@@ -197,7 +215,10 @@ const AllApps = () => {
                                                     <UserMoreMenu onPressEditRow={() => navigate('/dashboard/allApp/editApp', {
                                                         replace: true, state: row
                                                     },
-                                                    )} />
+                                                    )}
+                                                        isManage={true}
+                                                        onPressManageServer={() => handleNavigation(row)}
+                                                    />
                                                 </TableCell>
                                             </TableRow>
                                         );
@@ -222,14 +243,20 @@ const AllApps = () => {
                         </TableContainer>
                     </Scrollbar>
 
+
                     <TablePagination
-                        rowsPerPageOptions={[5, 10, 25, 50]}
+                        rowsPerPageOptions={[5, 10, 25]}
                         component="div"
-                        count={list.length}
+                        count={allAPP.length}
                         rowsPerPage={rowsPerPage}
                         page={page}
                         onPageChange={handleChangePage}
                         onRowsPerPageChange={handleChangeRowsPerPage}
+                        sx={{
+                            '.MuiInputBase-root': {
+                                marginBottom: '12px'
+                            },
+                        }}
                     />
                 </Card>
             </Container>

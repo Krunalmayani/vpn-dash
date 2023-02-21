@@ -1,7 +1,6 @@
-import { filter } from 'lodash';
+
 import { useEffect, useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
 
 // material
 import {
@@ -25,18 +24,21 @@ import Scrollbar from '../components/Scrollbar';
 import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
-import { getAllServer } from '../redux/action/authAction'
 // mock
 import { useDispatch, useSelector } from 'react-redux';
 import { Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
+import { getAllServer } from '../redux/action/serverAction';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
     { id: 'id', label: 'ID', alignRight: false },
+    { id: 'name', label: 'Name', alignRight: false },
+    { id: 'ipAddress', label: 'IP Address', alignRight: false },
     { id: 'username', label: 'User Name', alignRight: false },
     { id: 'password', label: 'Password', alignRight: false },
     { id: 'country', label: 'Country', alignRight: false },
+    { id: 'city', label: 'City', alignRight: false },
     { id: 'config_udp', label: 'Config UDP', alignRight: false },
     { id: 'config_tcp', label: 'Config TCP', alignRight: false },
     { id: 'action', label: 'Action', alignRight: true },
@@ -45,54 +47,24 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
-function descendingComparator(a, b, orderBy) {
-    if (b[orderBy] < a[orderBy]) {
-        return -1;
-    }
-    if (b[orderBy] > a[orderBy]) {
-        return 1;
-    }
-    return 0;
-}
 
-function getComparator(order, orderBy) {
-    return order === 'desc'
-        ? (a, b) => descendingComparator(a, b, orderBy)
-        : (a, b) => -descendingComparator(a, b, orderBy);
-}
 
-function applySortFilter(array, comparator, query) {
-    const stabilizedThis = array.map((el, index) => [el, index]);
-    stabilizedThis.sort((a, b) => {
-        const order = comparator(a[0], b[0]);
-        if (order !== 0) return order;
-        return a[1] - b[1];
-    });
-    if (query) {
-        return filter(array, (_user) => _user.username.toLowerCase().indexOf(query.toLowerCase()) !== -1);
-    }
-    return stabilizedThis.map((el) => el[0]);
-}
+
 const ServerList = () => {
     const [page, setPage] = useState(0);
-
-    const [order, setOrder] = useState('asc');
-
+    const [open, setOpen] = useState(false);
     const [selected, setSelected] = useState([]);
-
-    const [orderBy, setOrderBy] = useState('id');
-
     const [filterName, setFilterName] = useState('');
+    const [rowsPerPage, setRowsPerPage] = useState(5);
 
 
 
     const [configData, setConfigData] = useState(null);
-    const [open, setOpen] = useState(false);
+
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
 
-    const [rowsPerPage, setRowsPerPage] = useState(5);
     const navigate = useNavigate();
 
 
@@ -144,8 +116,8 @@ const ServerList = () => {
     };
 
     const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
+        setRowsPerPage(parseInt(event.target.value, 10));
     };
 
     const handleFilterByName = (event) => setFilterName(event.target.value);
@@ -157,14 +129,15 @@ const ServerList = () => {
 
     const isUserNotFound = filteredUsers.length === 0;
 
+
     return (
         <Page title="Server">
-            <Container style={{ maxWidth: '1400px' }} >
+            <Container sx={{ minWidth: 1500 }}>
                 <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
                     <Typography variant="h4" gutterBottom>
                         VPN Server
                     </Typography>
-                    <Button variant="contained" onClick={() => navigate('/dashboard/server/newServer')} to="#" startIcon={<Iconify icon="eva:plus-fill" />}  >
+                    <Button variant="contained" onClick={() => navigate('/dashboard/server/newServer')} startIcon={<Iconify icon="eva:plus-fill" />}  >
                         New Server
                     </Button>
                 </Stack>
@@ -176,7 +149,7 @@ const ServerList = () => {
                         <TableContainer sx={{ minWidth: 800 }}>
                             <Table>
                                 <UserListHead
-                                    order={order}
+                                    order={'asc'}
                                     // orderBy={orderBy}
                                     headLabel={TABLE_HEAD}
                                     rowCount={allServer.length}
@@ -186,7 +159,7 @@ const ServerList = () => {
                                 />
                                 <TableBody>
                                     {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                                        const { id, username, password, country, config_udp, config_tcp, updated_date, avatarUrl, created_date } = row;
+                                        const { id, name, IPAddress, username, password, country, city, config_udp, config_tcp } = row;
                                         const isItemSelected = selected.indexOf(id) !== -1;
 
                                         return (
@@ -205,14 +178,17 @@ const ServerList = () => {
                                                 <TableCell component="th" scope="row" padding="none">
                                                     <Stack direction="row" alignItems="center" spacing={2}>
                                                         <Typography variant="subtitle2" noWrap>
-                                                            {username}
+                                                            {name}
                                                         </Typography>
                                                     </Stack>
                                                 </TableCell>
+                                                <TableCell align="left">{IPAddress ? IPAddress : 'null'}</TableCell>
+                                                <TableCell align="left">{username}</TableCell>
                                                 <TableCell align="left">{password}</TableCell>
                                                 <TableCell align="left">{country}</TableCell>
-                                                <TableCell align="left">{config_udp ? <Button variant="contained" onClick={() => { handleOpen(); setConfigData({ title: 'Config UDP', body: config_udp || '' }) }}>Config UDP</Button> : '--'}</TableCell>
-                                                <TableCell align="left">{config_tcp ? <Button variant="contained" onClick={() => { handleOpen(); setConfigData({ title: 'Config TCP', body: config_tcp || '' }) }}>Config TCP</Button> : '--'}</TableCell>
+                                                <TableCell align="left">{city ? city : '--'}</TableCell>
+                                                <TableCell align="left">{config_udp ? <Button variant="contained" onClick={() => { handleOpen(); setConfigData({ title: 'Config UDP', body: config_udp || '' }) }}>Config UDP</Button> : 'null'}</TableCell>
+                                                <TableCell align="left">{config_tcp ? <Button variant="contained" onClick={() => { handleOpen(); setConfigData({ title: 'Config TCP', body: config_tcp || '' }) }}>Config TCP</Button> : 'null'}</TableCell>
                                                 <TableCell align="right">
                                                     <UserMoreMenu onPressEditRow={() => navigate('/dashboard/server/editServer')} />
                                                 </TableCell>
@@ -247,6 +223,11 @@ const ServerList = () => {
                         page={page}
                         onPageChange={handleChangePage}
                         onRowsPerPageChange={handleChangeRowsPerPage}
+                        sx={{
+                            '.MuiInputBase-root': {
+                                marginBottom: '12px'
+                            },
+                        }}
                     />
                 </Card>
                 <Modal isOpen={open} toggle={handleClose} size="lg" >
@@ -265,18 +246,5 @@ const ServerList = () => {
     );
 };
 
-const style = {
-    // position: 'absolute',
-    // top: '50%',
-    // left: '50%',
-    // transform: 'translate(-50%, -50%)',
-    width: '90%',
-    bgcolor: 'background.paper',
-    // border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
-    justifyContent: 'center'
-
-};
 
 export default ServerList;

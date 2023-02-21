@@ -1,11 +1,11 @@
 import { combineReducers } from "redux";
 
 import authReducer from "./authReducer"
-import historyReducer from "./historyReducer";
+import appReducer from "./appReducer";
 
 const rootReducer = combineReducers({
     user: authReducer,
-    tokenHistory:historyReducer
+    application: appReducer
 
 });
 
